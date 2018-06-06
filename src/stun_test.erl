@@ -165,7 +165,7 @@ allocate_udp_test() ->
     {ok, #stun{trid = TrID3,
 	       class = response}} = stun_codec:decode(PktIn3, datagram),
     %% Sending some data to the peer. Peer receives it.
-    Data1 = crypto:rand_bytes(20),
+    Data1 = crypto:strong_rand_bytes(20),
     TrID4 = mk_trid(),
     Msg4 = #stun{method = ?STUN_METHOD_SEND,
 		 trid = TrID4,
@@ -201,7 +201,7 @@ allocate_udp_test() ->
 		  class = response}},
        stun_codec:decode(PktIn5, datagram)),
     %% Now we send data to this channel. The peer receives it.
-    Data3 = crypto:rand_bytes(20),
+    Data3 = crypto:strong_rand_bytes(20),
     Msg6 = #turn{channel = ?CHANNEL, data = Data3},
     PktOut6 = stun_codec:encode(Msg6),
     ?assertEqual(ok, gen_udp:send(Socket, {127,0,0,1}, ?STUN_PORT, PktOut6)),
@@ -354,9 +354,7 @@ recv(TLSSocket, Buf, true) ->
     end.
 
 mk_trid() ->
-    {A, B, C} = now(),
-    random:seed(A, B, C),
-    random:uniform(1 bsl 96).
+    rand:uniform(1 bsl 96).
 
 get_cert() ->
     <<"-----BEGIN CERTIFICATE-----

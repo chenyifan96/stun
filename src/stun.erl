@@ -101,7 +101,6 @@ tcp_init(_Sock, Opts) ->
     Opts.
 
 udp_init(Sock, Opts) ->
-    seed(),
     prepare_state(Opts, Sock, {{0,0,0,0}, 0}, gen_udp).
 
 udp_recv(Sock, Addr, Port, Data, State) ->
@@ -120,7 +119,6 @@ udp_recv(Sock, Addr, Port, Data, State) ->
 init([Sock, Opts]) ->
     case inet:peername(Sock) of
 	{ok, Addr} ->
-	    seed(),
 	    TRef = erlang:start_timer(?TIMEOUT, self(), stop),
 	    SockMod = get_sockmod(Opts),
 	    State = prepare_state(Opts, Sock, Addr, SockMod),
@@ -598,7 +596,7 @@ clean_treap(Treap, CleanPriority) ->
 
 make_nonce(Addr, Nonces) ->
     Priority = now_priority(),
-    Nonce = list_to_binary(integer_to_list(random:uniform(1 bsl 32))),
+    Nonce = list_to_binary(integer_to_list(rand:uniform(1 bsl 32))),
     NewNonces = clean_treap(Nonces, Priority + ?NONCE_LIFETIME),
     {Nonce, treap:insert(Nonce, Priority, Addr, NewNonces)}.
 
@@ -642,10 +640,6 @@ maybe_starttls(Sock, p1_tls, CertFile, _PeerAddr) ->
     p1_tls:tcp_to_tls(Sock, [{certfile, CertFile}]);
 maybe_starttls(Sock, gen_tcp, _CertFile, _PeerAddr) ->
     {ok, Sock}.
-
-seed() ->
-    {A, B, C} = now(),
-    random:seed(A, B, C).
 
 prepare_response(State, Msg) ->
     #stun{method = Msg#stun.method,

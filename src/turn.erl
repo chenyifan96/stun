@@ -115,8 +115,6 @@ init([Opts]) ->
 	    ok
     end,
     TRef = erlang:start_timer(?DEFAULT_LIFETIME, self(), stop),
-    {A1, A2, A3} = now(),
-    random:seed(A1, A2, A3),
     case turn_sm:add_allocation(AddrPort, Username, Realm, MaxAllocs, self()) of
 	ok ->
 	    {ok, wait_for_allocate, State#state{life_timer = TRef}};
@@ -438,7 +436,7 @@ time_left(TRef) ->
 %% draft-ietf-tsvwg-port-randomization-04
 allocate_addr({Min, Max}) ->
     Count = Max - Min + 1,
-    Next = Min + random:uniform(Count) - 1,
+    Next = Min + rand:uniform(Count) - 1,
     allocate_addr(Min, Max, Next, Count).
 
 allocate_addr(_Min, _Max, _Next, 0) ->
